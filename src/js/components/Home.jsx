@@ -1,28 +1,69 @@
-import React from "react";
+import React, { useEffect, useState } from 'react';
+import SecondsCounter from './SecondsCounter';
+import Button from './Button';
 
-//include images into your bundle
-import rigoImage from "../../img/rigo-baby.jpg";
-
-//create your first component
 const Home = () => {
-	return (
-		<div className="text-center">
-            
+  const initialSecondsStateValue = [0, 0, 0, 0, 0, 0];
+  const [seconds, setSeconds] = useState(initialSecondsStateValue);
+  const [stopTimer, setStopTimer] = useState(false);
 
-			<h1 className="text-center mt-5">Hello Rigo!</h1>
-			<p>
-				<img src={rigoImage} />
-			</p>
-			<a href="#" className="btn btn-success">
-				If you see this green button... bootstrap is working...
-			</a>
-			<p>
-				Made by{" "}
-				<a href="http://www.4geeksacademy.com">4Geeks Academy</a>, with
-				love!
-			</p>
-		</div>
-	);
+  // --------- TIMER HELPER FUNCTION -----------
+  const timerFunctionality = (arr) => {
+    let newArr = [...arr];
+    newArr[newArr.length - 1]++;
+    for (let i = newArr.length - 1; i > 0; i--) {
+      if (newArr[i] === 10) {
+        newArr[i] = 0;
+        newArr[i - 1]++;
+      }
+    }
+    setSeconds(newArr);
+  };
+
+  useEffect(() => {
+    if (!stopTimer) {
+      const timer = setInterval(() => {
+        timerFunctionality(seconds);
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [stopTimer, seconds]);
+
+  // --------- STOP TIMER -----------
+  const handleStopTimer = () => {
+    setStopTimer((prevTimerState) => !prevTimerState);
+  };
+  // --------- RESET TIMER -----------
+  const handleResetTimer = () => {
+    setSeconds(initialSecondsStateValue);
+  };
+
+  return (
+    <div className='container bg-dark p-5 text-center'>
+      <SecondsCounter seconds={seconds} />
+      <div>
+        <Button
+          onClick={handleStopTimer}
+          btnIcon={
+            stopTimer ? (
+              <i className='fa-solid fa-play' style={{ color: '#ffffff' }}></i>
+            ) : (
+              <i className='fa-solid fa-stop' style={{ color: '#ffffff' }}></i>
+            )
+          }
+          btnText={`${stopTimer ? 'Resume Timer' : 'Stop Timer'}`}
+          btnColor={`${stopTimer ? 'btn-success' : 'btn-danger'}`}
+        />
+        <Button
+          onClick={handleResetTimer}
+          btnIcon={<i className='fa-solid fa-rotate-right' style={{ color: '#ffffff' }}></i>}
+          btnText={'Reset Timer'}
+          btnColor={'btn-primary'}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default Home;
